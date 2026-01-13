@@ -12,3 +12,37 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum ProjectStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TaskStatus {
+  PENDING
+  INROGRESS
+  COMPLETED
+  HOLD
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(100)
+  archived_at DateTime?
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  status      ProjectStatus @default(ACTIVE)
+  tasks       Task[]
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(200)
+  description String?    @db.Text
+  project_id  Int
+  project     Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  status      TaskStatus @default(PENDING)
+  archived_at DateTime?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+}
